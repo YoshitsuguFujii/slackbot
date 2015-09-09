@@ -1,7 +1,7 @@
 package qiitabot
 
 import (
-	"bytes"
+	"../util"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -52,11 +52,11 @@ func isUserExist(user string) bool {
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
-	perror(err)
+	util.Perror(err)
 
 	p(string(body))
 	parse_err := json.Unmarshal(body, &user_responce)
-	perror(parse_err)
+	util.Perror(parse_err)
 	//fmt.Printf("id: %s", user_responce.Id)
 	if user_responce.Id != "" {
 		return true
@@ -90,11 +90,10 @@ func getStock(user string) string {
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
-	perror(err)
+	util.Perror(err)
 
-	p("body:" + response.Header.Get("Total-Count"))
 	parse_err := json.Unmarshal(body, &stock_responces)
-	perror(parse_err)
+	util.Perror(parse_err)
 	//fmt.Printf("id: %s", len(stock_responces))
 	var url string
 	p(len(stock_responces))
@@ -118,12 +117,6 @@ func UserStockSample(text string) string {
 	return stock_url
 }
 
-func prettyPrint(b []byte) ([]byte, error) {
-	var out bytes.Buffer
-	err := json.Indent(&out, b, "", "\t")
-	return out.Bytes(), err
-}
-
 func currrentUser() {
 	request, _ := http.NewRequest("GET", "https://qiita.com/api/v2/authenticated_user", nil)
 	request.Header.Set("Authorization", "Bearer "+getToken())
@@ -140,7 +133,7 @@ func currrentUser() {
 		log.Fatal(err)
 	}
 
-	data, err := prettyPrint(contents)
+	data, err := util.PrettyPrint(contents)
 
 	fmt.Println(string(data))
 }
@@ -162,12 +155,6 @@ func getTotalCount(user string) int {
 	p("total count :" + total_count)
 	i, _ := strconv.Atoi(total_count)
 	return i
-}
-
-func perror(err error) {
-	if err != nil {
-		panic(err)
-	}
 }
 
 func getToken() string {
