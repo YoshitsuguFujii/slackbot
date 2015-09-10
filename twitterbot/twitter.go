@@ -16,13 +16,14 @@ import (
 	"os"
 	"strconv"
 	_ "strings"
+	"time"
 )
 
 var p = fmt.Println
-var prev_id int
+var prev_id []int
 var image_url string
 
-const TARGET_NAME = "@YoshitsuguFujii"
+var TARGET_NAMES = [2]string{"@YoshitsuguFujii", "@sasata299"}
 
 type BearerToken struct {
 	AccessToken string `json:"access_token"`
@@ -49,10 +50,10 @@ type Slack struct {
 	Channel    string `json:"channel"`    //#部屋名
 }
 
-func GetTweet() (string, string) {
+func GetTweet(counter int, target_name string) (string, string) {
 	var tweet_text, tweet_url string
 	bearer := getToken()
-	url := "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=" + TARGET_NAME
+	url := "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=" + target_name
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -73,15 +74,15 @@ func GetTweet() (string, string) {
 	parse_err := json.Unmarshal(body, &tweet)
 	util.Perror(parse_err)
 
-	p(prev_id)
-	if prev_id != tweet[0].Id {
-		tweet_url = buildUrl(tweet[0].Id)
+	p(prev_id[counter])
+	if prev_id[counter] != tweet[0].Id {
+		tweet_url = buildUrl(tweet[0].Id, target_name)
 		tweet_text = tweet[0].Text
 	} else {
 		tweet_url = ""
 		tweet_text = ""
 	}
-	prev_id = tweet[0].Id
+	prev_id[counter] = tweet[0].Id
 	return tweet_text, tweet_url
 }
 
@@ -114,13 +115,13 @@ func getToken() string {
 	return bearer_token.AccessToken
 }
 
-func buildUrl(id int) string {
-	return "https://twitter.com/" + TARGET_NAME + "/status/" + strconv.Itoa(id)
+func buildUrl(id int, target_name string) string {
+	return "https://twitter.com/" + target_name + "/status/" + strconv.Itoa(id)
 }
 
-func getUserInfo() UserInfo {
+func getUserInfo(target_name string) UserInfo {
 	bearer := getToken()
-	url := "https://api.twitter.com/1.1/users/show.json?screen_name=" + TARGET_NAME
+	url := "https://api.twitter.com/1.1/users/show.json?screen_name=" + target_name
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -144,14 +145,14 @@ func getUserInfo() UserInfo {
 	return user_info
 }
 
-func PostTweet(tweet_text string, tweet_url string) {
-	user_info := getUserInfo()
+func PostTweet(tweet_text string, tweet_url string, target_name string) {
+	user_info := getUserInfo(target_name)
 	params, _ := json.Marshal(Slack{
 		tweet_text,
-		"sasata299Bot",
+		user_info.Name + "Bot",
 		"",
 		user_info.ProfileImageUrl,
-		"#classi"})
+		"#test"})
 
 	resp, _ := http.PostForm(
 		slackUrl(),
@@ -166,4 +167,26 @@ func PostTweet(tweet_text string, tweet_url string) {
 
 func slackUrl() string {
 	return os.Getenv("slack_incoming_url")
+}
+
+func initialize() {
+	for i := 0; i < len(TARGET_NAMES); i++ {
+		prev_id = append(prev_id, 0)
+	}
+}
+
+func Watch() {
+	initialize()
+
+	for {
+		p(TARGET_NAMES)
+		for i := 0; i < len(TARGET_NAMES); i++ {
+			// 指定された回数分ループ
+			tweet_text, tweet_url := GetTweet(i, TARGET_NAMES[i])
+			if tweet_text != "" {
+				PostTweet(tweet_text, tweet_url, TARGET_NAMES[i])
+			}
+		}
+		time.Sleep(10 * time.Second)
+	}
 }

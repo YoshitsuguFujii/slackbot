@@ -6,7 +6,6 @@ import (
 	"./twitterbot"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 var p = fmt.Println
@@ -38,13 +37,7 @@ func checkUser(w http.ResponseWriter, r *http.Request, proc func(text string)) {
 }
 
 func PostTwitterMessage() {
-	for {
-		tweet_text, tweet_url := twitterbot.GetTweet()
-		if tweet_text != "" {
-			twitterbot.PostTweet(tweet_text, tweet_url)
-		}
-		time.Sleep(60 * time.Second)
-	}
+	twitterbot.Watch()
 }
 
 func main() {
