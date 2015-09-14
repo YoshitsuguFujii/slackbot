@@ -23,7 +23,7 @@ var p = fmt.Println
 var prev_id []int
 var image_url string
 
-var TARGET_NAMES = [2]string{"@YoshitsuguFujii", "@sasata299"}
+var TARGET_NAMES = [4]string{"@kenjiskywalker", "@sasata299", "@junzzz", "@sarutando"}
 
 type BearerToken struct {
 	AccessToken string `json:"access_token"`
@@ -152,7 +152,7 @@ func PostTweet(tweet_text string, tweet_url string, target_name string) {
 		user_info.Name + "Bot",
 		"",
 		user_info.ProfileImageUrl,
-		"#test"})
+		"#classi"})
 
 	resp, _ := http.PostForm(
 		slackUrl(),
@@ -187,6 +187,6 @@ func Watch() {
 				PostTweet(tweet_text, tweet_url, TARGET_NAMES[i])
 			}
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(5 * 60 * time.Second)
 	}
 }

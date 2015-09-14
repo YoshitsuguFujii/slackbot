@@ -8,6 +8,7 @@
   - すきにしていいよ
 いけたかも:
   - やったね！
+  - ╭( ･ㅂ･)و ̑̑ ｸﾞｯ !
 いけてないかも:
   - 残念
 いいですか:
@@ -29,3 +30,50 @@ HipChat: &hipchat
   - わかるよその気持ち
 ちきしょう:
   *chikisyo
+好き:
+  - 俺もお前のこと好きだよ
+  - ♥╭╮♥
+  - ✌♫♪˙❤‿❤˙♫♪✌
+github:
+  - ぎてゅb
+ぎてゅb:
+  - githubのこと・・・ですかね？
+gyazo:
+  - おいgyazoに貼り付けてるぞ大丈夫かお前？？？
+！！:
+  - 企画は機能が足りないからだと思い、開発は企画が悪いからだと思ってしまう。そういうことはないだろうか？
+  - ₍₍ ᕕ(´д`)ᕗ⁾⁾
+いつやるのか？:
+  - いま・・・ですかね？
+(´・ω・`):
+  - (´・ω・`)
+bot:
+  - よんだ？
+  - はーい？
+  - (΄◞ิ౪◟ิ‵ )ﾃﾞｭﾋｭﾋｭｺﾛｯ
+もうだめだ:
+  - あきらめないで
+  - あきらめたらそこで試合終了ですよ
+掃除:
+  - (#｀Д´)ﾉﾉ┻┻;:'､･ﾞ
+  - http://d2dcan0armyq93.cloudfront.net/photo/odai/400/eafcbcbc8b3b3581f418b8288c049764_400.jpg
+人が足りない: &tarinai
+  - http://hunterxhuntersmoon.com/image54.jpg
+時間がたりない:
+  *tarinai
+まぢか: &majika
+  - https://pbs.twimg.com/profile_images/1737276269/goreinu1_400x400.jpg
+まじか:
+  *majika
+ゴレイヌ:
+  - http://d13n9ry8xcpemi.cloudfront.net/photo/odai/400/5302781c325557d6fb4d6e5300cc0ea4_400.jpg
+金出せ！:
+  - なんで？
+ねこ: &neko
+  - http://dok-ryuukouhassin.blog.so-net.ne.jp/_images/blog/_504/dok-ryuukouhassin/E381ADE38193p2.jpg
+  - http://shiritai-news.c.blog.so-net.ne.jp/_images/blog/_997/shiritai-news/neko.jpg?c=a38
+  - http://img-cdn.jg.jugem.jp/661/1830298/20130804_662449.jpg
+猫:
+  *neko
+祭り: &maturi
+  - 後の祭りって祭りがあるらしいんですけどどこで見られますか？
