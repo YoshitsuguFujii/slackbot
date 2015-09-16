@@ -36,12 +36,17 @@ func checkUser(w http.ResponseWriter, r *http.Request, proc func(text string)) {
 	}
 }
 
-func PostTwitterMessage() {
-	twitterbot.Watch()
+func postTwitterMessage() {
+	twitterbot.WatchUser()
+}
+
+func watchWord() {
+	twitterbot.WatchWord()
 }
 
 func main() {
-	go PostTwitterMessage()
+	go postTwitterMessage()
+	go watchWord()
 	http.HandleFunc("/", slackBotResponder)
 	http.HandleFunc("/qiita", qiitaBotResponder)
 	http.ListenAndServe(":8888", nil)

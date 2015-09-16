@@ -95,3 +95,23 @@ func getUserInfo(target_name string) UserInfo {
 
 	return user_info
 }
+
+func postTweetToSlack(post_text string, target_name string, channel string) {
+	user_info := getUserInfo(target_name)
+	params, _ := json.Marshal(Slack{
+		post_text,
+		user_info.Name + "Bot",
+		"",
+		user_info.ProfileImageUrl,
+		channel})
+
+	resp, _ := http.PostForm(
+		slackUrl(),
+		url.Values{"payload": {string(params)}},
+	)
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+
+	println(string(body))
+}

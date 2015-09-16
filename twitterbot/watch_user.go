@@ -17,7 +17,7 @@ var p = fmt.Println
 var prev_id []int
 var image_url string
 
-var TARGET_NAMES = [4]string{"@kenjiskywalker", "@sasata299", "@junzzz", "@sarutando"}
+var TARGET_NAMES = [1]string{"@YoshitsuguFujii"}
 
 func GetTweet(counter int, target_name string) (string, string) {
 	var tweet_text, tweet_url string
@@ -83,24 +83,27 @@ func slackUrl() string {
 	return os.Getenv("slack_incoming_url")
 }
 
-func initialize() {
+func initialize_watch_user() {
 	for i := 0; i < len(TARGET_NAMES); i++ {
 		prev_id = append(prev_id, 0)
 	}
 }
 
-func Watch() {
-	initialize()
+func WatchUser() {
+	initialize_watch_user()
+
+	is_first := true
 
 	for {
 		p(TARGET_NAMES)
 		for i := 0; i < len(TARGET_NAMES); i++ {
 			// 指定された回数分ループ
 			tweet_text, tweet_url := GetTweet(i, TARGET_NAMES[i])
-			if tweet_text != "" {
+			if !is_first && tweet_text != "" {
 				PostTweet(tweet_text, tweet_url, TARGET_NAMES[i])
 			}
 		}
+		is_first = false
 		time.Sleep(5 * 60 * time.Second)
 	}
 }
