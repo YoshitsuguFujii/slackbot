@@ -1,5 +1,0 @@
-watch_words:
-  - word: "iOS9"
-    channel: "#twitter"
-    before_id: 0
-    get_count_per: 1

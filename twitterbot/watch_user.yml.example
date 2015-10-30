@@ -1,0 +1,4 @@
+groups:
+  - channel: "#test"
+    users:
+      - "@YoshitsuguFujii"

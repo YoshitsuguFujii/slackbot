@@ -4,6 +4,7 @@ import (
 	"../util"
 	"encoding/json"
 	"fmt"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -17,12 +18,33 @@ var p = fmt.Println
 var prev_id []int
 var image_url string
 
-var TARGET_NAMES = [1]string{"@YoshitsuguFujii"}
+var user_settings WatchUserSettings
 
-func GetTweet(counter int, target_name string) (string, string) {
+type WatchUserSettings struct {
+	Groups []Channel `groups`
+}
+
+type Channel struct {
+	Channel string   `channel`
+	Users   []string `users`
+}
+
+var users []User
+
+type User struct {
+	Channel    string
+	Identifier string `users`
+	PrevID     int
+}
+
+//var TARGET_NAMES = [5]string{"@kenjiskywalker", "@sasata299", "@junzzz", "@sarutando", "@tokyoxxxclub"}
+
+const Watchuser = "twitterbot/watch_user.yml"
+
+func GetTweet(target *User) (string, string) {
 	var tweet_text, tweet_url string
 	bearer := getToken()
-	url := "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=" + target_name
+	url := "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=" + target.Identifier
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -43,15 +65,14 @@ func GetTweet(counter int, target_name string) (string, string) {
 	parse_err := json.Unmarshal(body, &tweet)
 	util.Perror(parse_err)
 
-	p(prev_id[counter])
-	if prev_id[counter] != tweet[0].Id {
-		tweet_url = buildUrl(tweet[0].Id, target_name)
+	if target.PrevID != tweet[0].Id {
+		tweet_url = buildUrl(tweet[0].Id, target.Identifier)
 		tweet_text = tweet[0].Text
 	} else {
 		tweet_url = ""
 		tweet_text = ""
 	}
-	prev_id[counter] = tweet[0].Id
+	target.PrevID = tweet[0].Id
 	return tweet_text, tweet_url
 }
 
@@ -59,14 +80,14 @@ func buildUrl(id int, target_name string) string {
 	return "https://twitter.com/" + target_name + "/status/" + strconv.Itoa(id)
 }
 
-func PostTweet(tweet_text string, tweet_url string, target_name string) {
-	user_info := getUserInfo(target_name)
+func PostTweet(tweet_text string, tweet_url string, target *User) {
+	user_info := getUserInfo(target.Identifier)
 	params, _ := json.Marshal(Slack{
 		tweet_text,
 		user_info.Name + "Bot",
 		"",
 		user_info.ProfileImageUrl,
-		"#test"})
+		target.Channel})
 
 	resp, _ := http.PostForm(
 		slackUrl(),
@@ -84,8 +105,20 @@ func slackUrl() string {
 }
 
 func initialize_watch_user() {
-	for i := 0; i < len(TARGET_NAMES); i++ {
-		prev_id = append(prev_id, 0)
+	buf, err := ioutil.ReadFile(Watchuser)
+	if err != nil {
+		panic(err)
+	}
+
+	err = yaml.Unmarshal(buf, &user_settings)
+
+	for i := 0; i < len(user_settings.Groups); i++ {
+		for j := 0; j < len(user_settings.Groups[i].Users); j++ {
+			users = append(users,
+				User{Channel: user_settings.Groups[i].Channel,
+					Identifier: user_settings.Groups[i].Users[j],
+					PrevID:     0})
+		}
 	}
 }
 
@@ -95,12 +128,12 @@ func WatchUser() {
 	is_first := true
 
 	for {
-		p(TARGET_NAMES)
-		for i := 0; i < len(TARGET_NAMES); i++ {
+		p(users)
+		for i := 0; i < len(users); i++ {
 			// 指定された回数分ループ
-			tweet_text, tweet_url := GetTweet(i, TARGET_NAMES[i])
+			tweet_text, tweet_url := GetTweet(&users[i])
 			if !is_first && tweet_text != "" {
-				PostTweet(tweet_text, tweet_url, TARGET_NAMES[i])
+				PostTweet(tweet_text, tweet_url, &users[i])
 			}
 		}
 		is_first = false

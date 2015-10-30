@@ -1,2 +1,6 @@
 tmp/*
 .DS_Store
+tmp.pid
+slackbot_responder/word.yml
+twitterbot/watch_word.yml
+twitterbot/watch_user.yml
