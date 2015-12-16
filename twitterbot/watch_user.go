@@ -1,12 +1,12 @@
 package twitterbot
 
 import (
+	log "../lib/logger"
 	"../util"
 	"encoding/json"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-var p = fmt.Println
+//var p = fmt.Println
 var prev_id []int
 var image_url string
 
@@ -128,7 +128,7 @@ func WatchUser() {
 	is_first := true
 
 	for {
-		p(users)
+		log.Info(users)
 		for i := 0; i < len(users); i++ {
 			// 指定された回数分ループ
 			tweet_text, tweet_url := GetTweet(&users[i])

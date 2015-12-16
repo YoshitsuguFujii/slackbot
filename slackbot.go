@@ -1,10 +1,12 @@
 package main
 
 import (
+	log "./lib/logger"
 	"./qiitabot"
 	"./slackbot_responder"
 	"./todo_list"
 	"./twitterbot"
+	"./util"
 	"fmt"
 	"github.com/fukata/golang-stats-api-handler"
 	"net/http"
@@ -12,7 +14,7 @@ import (
 	"syscall"
 )
 
-var p = fmt.Println
+//var p = fmt.Println
 
 const PidFilePath = "tmp.pid"
 
@@ -44,8 +46,9 @@ func checkUser(w http.ResponseWriter, r *http.Request, proc func(text string, ch
 		channel_name := r.FormValue("channel_name")
 
 		if user_name != "slackbot" {
-			p("user_name:", user_name)
-			p("channel_name:", channel_name)
+			log.Info("user_name: " + user_name)
+			log.Info("channel_name: " + channel_name)
+			log.Info("text: " + text)
 			proc(text, channel_name)
 		}
 	}
@@ -74,10 +77,13 @@ func prepare() {
 		panic(err.Error())
 	}
 	pidf.Close()
+
+	log.InitLog()
 }
 
 func main() {
 	prepare()
+	log.Info("START => " + util.JpCurrentTIme())
 	go postTwitterMessage()
 	go watchWord()
 	http.HandleFunc("/", slackBotResponder)

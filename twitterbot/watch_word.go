@@ -1,12 +1,12 @@
 package twitterbot
 
 import (
+	log "../lib/logger"
 	"../util"
 	"encoding/json"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -87,7 +87,7 @@ func WatchWord() {
 func search(search_info *WatchWordSetting) (search_text []string, user_name []string, last_id int) {
 	bearer := getToken()
 	values := url.Values{}
-	p("検索ワード:" + search_info.Word)
+	log.Info("検索ワード:" + search_info.Word)
 	values.Add("q", "\""+search_info.Word+"\""+search_info.ExceptWord)
 	values.Add("count", strconv.Itoa(search_info.GetCountPer))
 	values.Add("lang", "ja")
@@ -118,10 +118,8 @@ func search(search_info *WatchWordSetting) (search_text []string, user_name []st
 	util.Perror(parse_err)
 
 	if len(search_responce.Statuses) > 0 {
-		p("#######")
-		p(search_info)
-		p("取得id:" + strconv.Itoa(search_responce.Statuses[0].Id))
-		p("#######")
+		log.Info(search_info)
+		log.Info("取得id:" + strconv.Itoa(search_responce.Statuses[0].Id))
 
 		total_count := len(search_responce.Statuses)
 		for i := 0; i < total_count; i++ {
@@ -131,9 +129,6 @@ func search(search_info *WatchWordSetting) (search_text []string, user_name []st
 			//}
 		}
 		last_id = search_responce.Statuses[0].Id
-		p("############a")
-		p(last_id)
-		p("############a")
 		search_info.BeforeId = last_id
 	} else {
 		last_id = 0

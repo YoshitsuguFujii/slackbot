@@ -4,13 +4,13 @@
 package twitterbot
 
 import (
+	log "../lib/logger"
 	"../util"
 	"bytes"
 	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"

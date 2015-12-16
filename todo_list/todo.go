@@ -1,13 +1,10 @@
 package todo
 
-// TODO
-// delとadd時にlistを表示
-
 import (
+	log "../lib/logger"
 	"../util"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 )

@@ -1,11 +1,11 @@
 package qiitabot
 
 import (
+	log "../lib/logger"
 	"../util"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-var p = fmt.Println
+//pvar p = fmt.Println
 
 const PER_PAGE = 100
 
@@ -40,7 +40,7 @@ func getUser(text string) string {
 
 func isUserExist(user string) bool {
 	var user_responce UserResponce
-	p("request: -> " + "https://qiita.com/api/v2/users/" + user)
+	log.Info("request: -> " + "https://qiita.com/api/v2/users/" + user)
 	request, _ := http.NewRequest("GET", "https://qiita.com/api/v2/users/"+user, nil)
 	request.Header.Set("Authorization", "Bearer "+getToken())
 
@@ -54,7 +54,7 @@ func isUserExist(user string) bool {
 	body, err := ioutil.ReadAll(response.Body)
 	util.Perror(err)
 
-	p(string(body))
+	log.Debug(string(body))
 	parse_err := json.Unmarshal(body, &user_responce)
 	util.Perror(parse_err)
 	//fmt.Printf("id: %s", user_responce.Id)
@@ -78,7 +78,7 @@ func getStock(user string) string {
 		page = 1
 	}
 	get_url := "https://qiita.com/" + "/api/v2/users/" + user + "/stocks" + "?page=" + strconv.Itoa(page) + "&per_page=" + strconv.Itoa(PER_PAGE)
-	p("request: -> " + get_url)
+	log.Info("request: -> " + get_url)
 	request, _ := http.NewRequest("GET", get_url, nil)
 	request.Header.Set("Authorization", "Bearer "+getToken())
 
@@ -94,9 +94,7 @@ func getStock(user string) string {
 
 	parse_err := json.Unmarshal(body, &stock_responces)
 	util.Perror(parse_err)
-	//fmt.Printf("id: %s", len(stock_responces))
 	var url string
-	p(len(stock_responces))
 	if len(stock_responces) > 0 {
 		rand.Seed(time.Now().UnixNano())
 		stock_responce := stock_responces[rand.Intn(len(stock_responces))]
@@ -140,7 +138,7 @@ func currrentUser() {
 
 func getTotalCount(user string) int {
 	get_url := "https://qiita.com/" + "/api/v2/users/" + user + "/stocks" + "?per_page=1"
-	p("count request: -> " + get_url)
+	log.Info("count request: -> " + get_url)
 	request, _ := http.NewRequest("GET", get_url, nil)
 	request.Header.Set("Authorization", "Bearer "+getToken())
 
@@ -152,7 +150,7 @@ func getTotalCount(user string) int {
 	defer response.Body.Close()
 
 	total_count := response.Header.Get("Total-Count")
-	p("total count :" + total_count)
+	log.Info("total count :" + total_count)
 	i, _ := strconv.Atoi(total_count)
 	return i
 }
