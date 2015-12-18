@@ -1,5 +1,5 @@
 USER_NAME = 'yoshitsugu'
-server '192.168.1.55', user: USER_NAME, roles: %w{slack}
+server ENV["production_ip"] || '192.168.1.55', user: USER_NAME, roles: %w{slack}
 
 # Default deploy_to directory is /var/www/my_app_name
 set :deploy_to, "/home/#{USER_NAME}/go/my-project/slackbot"

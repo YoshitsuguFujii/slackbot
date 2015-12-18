@@ -37,8 +37,6 @@ type User struct {
 	PrevID     int
 }
 
-//var TARGET_NAMES = [5]string{"@kenjiskywalker", "@sasata299", "@junzzz", "@sarutando", "@tokyoxxxclub"}
-
 const Watchuser = "twitterbot/watch_user.yml"
 
 func GetTweet(target *User) (string, string) {

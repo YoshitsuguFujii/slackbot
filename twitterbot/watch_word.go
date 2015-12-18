@@ -69,13 +69,19 @@ func initialize_watch_word_bot() {
 func WatchWord() {
 	initialize_watch_word_bot()
 
+	is_first := true
+
 	for {
 		for i := 0; i < len(word_settings.Word); i++ {
 			go func(search_info *WatchWordSetting) {
 				text, from_user, last_id := search(search_info)
 				if last_id > 0 {
 					for i := 0; i < len(text); i++ {
-						postTweetToSlack(text[i], from_user[i], search_info.Channel)
+						if is_first {
+							is_first = false
+						} else {
+							postTweetToSlack(text[i], from_user[i], search_info.Channel)
+						}
 					}
 				}
 			}(&word_settings.Word[i])

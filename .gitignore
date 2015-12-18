@@ -9,3 +9,4 @@ log/*
 vendor
 .bundle
 .envrc
+tags

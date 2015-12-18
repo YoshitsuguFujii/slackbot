@@ -2,10 +2,12 @@ package todo
 
 import (
 	log "../lib/logger"
+	"../models"
 	"../util"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -17,10 +19,10 @@ const STORE_DIR = "todo_list/stored_files"
 
 var p = fmt.Println
 
-func Accept(text string, channel_name string) string {
+func Accept(text string, channel_name string) interface{} {
 	var command string
 	var message string
-	var rtn_text string
+	var rtn_text interface{}
 
 	if validateParams(text) {
 		command, message = parseText(text)
@@ -104,7 +106,7 @@ func add(channel_name string, message string) string {
 	}
 
 	lines, _ := getList(file_path)
-	return "登録に成功しました :wink: \n 現在のタスク \n- " + strings.Join(lines, "\n- ")
+	return "登録に成功しました :wink: \n 現在のタスク \n " + strings.Join(lines, "\n")
 }
 
 func list(channel_name string) string {
@@ -117,7 +119,7 @@ func list(channel_name string) string {
 	lines, _ := getList(file_path)
 
 	// TODO 文言をランダムで変えたい
-	return "現在のタスクです。\n気張っていきましょー :kissing_heart: \n\n- " + strings.Join(lines, "\n- ")
+	return "現在のタスクです。\n気張っていきましょー :kissing_heart: \n\n " + strings.Join(lines, "\n")
 }
 
 func del(channel_name string, message string) string {
@@ -136,11 +138,9 @@ func del(channel_name string, message string) string {
 	}
 
 	for i := 0; i < len(lines); i++ {
-		if lines[i] == message {
+		if lines[i] == message || strconv.Itoa(i+1) == message {
 			del_flg = true
-		}
-
-		if lines[i] != message {
+		} else {
 			new_lines = append(new_lines, lines[i])
 		}
 	}
@@ -158,19 +158,19 @@ func del(channel_name string, message string) string {
 		if len(new_lines) != 0 {
 			lines, _ = getList(file_path)
 		}
-		return "削除に成功しました :neutral_face: \n 残りのタスク \n- " + strings.Join(lines, "\n- ")
+		return "削除に成功しました :neutral_face: \n 残りのタスク \n " + strings.Join(lines, "\n")
 	} else {
 		return "一致するものが見つかりませんでした"
 	}
 }
 
-func clear(channel_name string) string {
+func clear(channel_name string) models.SlackMessage {
 	file_path := getStoredPath(channel_name)
 	if err := os.Remove(file_path); err != nil {
-		return "クリアに失敗しました"
+		return models.SlackMessage{Text: "クリアに失敗しました"}
 	}
 
-	return "クリアしました"
+	return models.SlackMessage{Text: "クリアしました"}
 }
 
 func getStoredPath(channel_name string) string {
@@ -183,5 +183,13 @@ func getList(file_path string) ([]string, error) {
 		log.Fatalf("readLines: %s", err)
 	}
 
-	return lines, err
+	var items []string
+	for i, line := range lines {
+		items = append(items, strconv.Itoa(i+1)+". "+line)
+	}
+
+	items = append([]string{"```"}, items...)
+	items = append(items, "```")
+
+	return items, err
 }

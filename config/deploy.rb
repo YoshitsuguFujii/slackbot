@@ -1,3 +1,5 @@
+require "pathname"
+
 # config valid only for current version of Capistrano
 lock '3.4.0'
 
@@ -25,9 +27,11 @@ set :branch, ENV['BRANCH'] || "master"
 
 # Default value for :linked_files is []
 # set :linked_files, fetch(:linked_files, []).push('config/database.yml', 'config/secrets.yml')
+set :linked_files, fetch(:linked_files, []).push('tmp.pid')
 
 # Default value for linked_dirs is []
 # set :linked_dirs, fetch(:linked_dirs, []).push('log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', 'public/system')
+set :linked_dirs, fetch(:linked_dirs, []).push('log', 'todo_list/stored_files')
 
 # Default value for default_env is {}
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }
@@ -49,12 +53,38 @@ namespace :deploy do
   task :kill do
     on roles(:slack) do |host|
       #if test "[ ! -d #{current_path}/tmp.pid ]"
-      if test "[ -d #{current_path}/tmp.pid ]"
-        execute "cd #{current_path} && kill -9 `cat tmp.pid` > /dev/null "" 2>&1"
+      if test "[ -f #{shared_path}/tmp.pid ]"
+        execute "cd #{shared_path} && kill -9 `cat tmp.pid` > /dev/null "" 2>&1"
+        execute "cd #{shared_path} && rm tmp.pid"
       end
     end
   end
   before 'deploy:starting', 'deploy:kill'
+
+  desc 'create_shared_directory'
+  task :create_shared_directory do
+    on roles(:slack) do |host|
+      unless test "[ -d #{shared_path}/log ]"
+        execute :mkdir, '-pv', "#{shared_path}/log"
+      end
+
+      unless test "[ -d #{shared_path}/todo_list/stored_files ]"
+        execute :mkdir, '-pv', "#{shared_path}/todo_list/stored_files"
+      end
+    end
+  end
+
+  desc 'create_shared_files'
+  task :create_shared_files do
+    on roles(:slack) do |host|
+      unless test "[ -f #{shared_path}/tmp.pid ]"
+        execute "touch #{shared_path}/tmp.pid"
+      end
+    end
+  end
+
+  before 'deploy:starting', 'deploy:create_shared_directory'
+  before 'deploy:starting', 'deploy:create_shared_files'
 
   desc 'gom install'
   task :gom_install do
@@ -70,6 +100,10 @@ namespace :deploy do
       upload!('slackbot_responder/word.yml', "#{release_path}/slackbot_responder/word.yml")
       upload!('twitterbot/watch_user.yml', "#{release_path}/twitterbot/watch_user.yml")
       upload!('twitterbot/watch_word.yml', "#{release_path}/twitterbot/watch_word.yml")
+
+      Pathname.glob("api-mock/*.yml").each do |file|
+        upload!(file.to_s, "#{release_path}/api-mock")
+      end
     end
   end
   before 'deploy:published', 'deploy:upload_files'

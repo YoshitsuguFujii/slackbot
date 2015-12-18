@@ -1,6 +1,7 @@
 package main
 
 import (
+	apiMock "./api-mock"
 	log "./lib/logger"
 	"./qiitabot"
 	"./slackbot_responder"
@@ -11,6 +12,7 @@ import (
 	"github.com/fukata/golang-stats-api-handler"
 	"net/http"
 	"os"
+	"os/exec"
 	"syscall"
 )
 
@@ -19,6 +21,7 @@ import (
 const PidFilePath = "tmp.pid"
 
 func slackBotResponder(w http.ResponseWriter, r *http.Request) {
+	log.Info("slackBotResponder")
 	checkUser(w, r, func(text string, channel_name string) {
 		return_text := slackbot_responder.DetectWord(text)
 		fmt.Fprintf(w, "{\"text\": \"%s\"}", return_text)
@@ -26,6 +29,7 @@ func slackBotResponder(w http.ResponseWriter, r *http.Request) {
 }
 
 func qiitaBotResponder(w http.ResponseWriter, r *http.Request) {
+	log.Info("qiitaBotResponder")
 	checkUser(w, r, func(text string, channel_name string) {
 		return_text := qiitabot.UserStockSample(text)
 		fmt.Fprintf(w, "{\"text\": \"%s\"}", return_text)
@@ -33,6 +37,7 @@ func qiitaBotResponder(w http.ResponseWriter, r *http.Request) {
 }
 
 func todoListBot(w http.ResponseWriter, r *http.Request) {
+	log.Info("todoListBot")
 	checkUser(w, r, func(text string, channel_name string) {
 		return_text := todo.Accept(text, channel_name)
 		fmt.Fprintf(w, "{\"text\": \"%s\"}", return_text)
@@ -63,12 +68,7 @@ func watchWord() {
 }
 
 func prepare() {
-	if ferr := os.Remove(PidFilePath); ferr != nil {
-		if !os.IsNotExist(ferr) {
-			panic(ferr.Error())
-		}
-	}
-	pidf, perr := os.OpenFile(PidFilePath, os.O_EXCL|os.O_CREATE|os.O_WRONLY, 0666)
+	pidf, perr := os.OpenFile(PidFilePath, os.O_CREATE|os.O_WRONLY, 0666)
 
 	if perr != nil {
 		panic(perr.Error())
@@ -82,13 +82,20 @@ func prepare() {
 }
 
 func main() {
-	prepare()
-	log.Info("START => " + util.JpCurrentTIme())
-	go postTwitterMessage()
-	go watchWord()
-	http.HandleFunc("/", slackBotResponder)
-	http.HandleFunc("/qiita", qiitaBotResponder)
-	http.HandleFunc("/todo", todoListBot)
-	http.HandleFunc("/stats", stats_api.Handler)
-	http.ListenAndServe(":8888", nil)
+	if len(os.Args) == 1 {
+		// exec itself
+		cmd := exec.Command(os.Args[0], "--child")
+		cmd.Start()
+	} else {
+		prepare()
+		log.Info("START => " + util.JpCurrentTIme())
+		go postTwitterMessage()
+		go watchWord()
+		http.HandleFunc("/", slackBotResponder)
+		http.HandleFunc("/qiita", qiitaBotResponder)
+		http.HandleFunc("/todo", todoListBot)
+		http.HandleFunc("/stats", stats_api.Handler)
+		http.HandleFunc("/api-mock", apiMock.Show)
+		http.ListenAndServe(":8888", nil)
+	}
 }
