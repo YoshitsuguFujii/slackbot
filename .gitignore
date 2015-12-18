@@ -6,3 +6,6 @@ twitterbot/watch_word.yml
 twitterbot/watch_user.yml
 _vendor
 log/*
+vendor
+.bundle
+.envrc

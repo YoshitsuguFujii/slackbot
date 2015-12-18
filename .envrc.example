@@ -1,0 +1,4 @@
+export qiita_token="hoge"
+export twitter_consumer_key="fufga"
+export twitter_consumer_secret="fufa"
+export slack_incoming_url="hogehoge"
