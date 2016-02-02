@@ -8,6 +8,7 @@ import (
 	"./todo_list"
 	"./twitterbot"
 	"./util"
+	"./weather"
 	"fmt"
 	"github.com/fukata/golang-stats-api-handler"
 	"net/http"
@@ -88,7 +89,7 @@ func main() {
 		cmd.Start()
 	} else {
 		prepare()
-		log.Info("START => " + util.JpCurrentTIme())
+		log.Info("START => " + util.JpCurrentTime())
 		go postTwitterMessage()
 		go watchWord()
 		http.HandleFunc("/", slackBotResponder)
@@ -96,6 +97,7 @@ func main() {
 		http.HandleFunc("/todo", todoListBot)
 		http.HandleFunc("/stats", stats_api.Handler)
 		http.HandleFunc("/api-mock", apiMock.Show)
+		http.HandleFunc("/weathers", weather.Post)
 		http.ListenAndServe(":8888", nil)
 	}
 }
