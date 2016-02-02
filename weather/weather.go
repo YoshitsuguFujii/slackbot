@@ -112,7 +112,7 @@ func Post(w http.ResponseWriter, r *http.Request) {
 		println(api_url)
 		result := getResult(api_url)
 		message := format(result)
-		slack_message := models.SlackMessageNew(message, convertCityName(result.Name)+" お天気bot", "", iconUrl(result.Weathers[0].Icon), "#test")
+		slack_message := models.SlackMessageNew(message, convertCityName(result.Name)+" お天気bot", "", iconUrl(result.Weathers[0].Icon), "#general")
 		models.SlackMessagePost(slack_message)
 
 		fmt.Fprintf(w, message+"\n")

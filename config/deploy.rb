@@ -1,4 +1,5 @@
 require "pathname"
+require "whenever/capistrano"
 
 # config valid only for current version of Capistrano
 lock '3.4.0'
@@ -38,6 +39,13 @@ set :linked_dirs, fetch(:linked_dirs, []).push('log', 'todo_list/stored_files')
 
 # Default value for keep_releases is 5
 # set :keep_releases, 5
+
+set :rbenv_type, :system
+set :rbenv_ruby, '2.2.3'
+
+set :whenever_identifier, ->{ "#{fetch(:application)}_#{fetch(:stage)}" }
+set :whenever_roles, :slack # 対象ロール
+set :whenever_environment, :production # 対象環境
 
 namespace :deploy do
   after :restart, :clear_cache do
