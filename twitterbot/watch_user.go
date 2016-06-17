@@ -60,6 +60,9 @@ func GetTweet(target *User) (string, string) {
 	util.Perror(err)
 
 	var tweet []Tweet
+
+	//fmt.Println(string(body))
+
 	parse_err := json.Unmarshal(body, &tweet)
 	util.Perror(parse_err)
 
