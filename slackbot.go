@@ -92,7 +92,7 @@ func main() {
 		log.Info("START => " + util.JpCurrentTime())
 		go postTwitterMessage()
 		go watchWord()
-		http.HandleFunc("/", slackBotResponder)
+		http.HandleFunc("/slack_bot_responder", slackBotResponder)
 		http.HandleFunc("/qiita", qiitaBotResponder)
 		http.HandleFunc("/todo", todoListBot)
 		http.HandleFunc("/stats", stats_api.Handler)
