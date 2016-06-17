@@ -75,7 +75,7 @@ func getCommand(text string) string {
 
 func getMessage(text string) string {
 	if len(strings.Split(text, " ")) > 2 {
-		return strings.Split(text, " ")[2]
+		return strings.Join(strings.Split(text, " ")[2:], " ")
 	} else {
 		return ""
 	}
